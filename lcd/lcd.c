@@ -22,16 +22,14 @@
 void lcd_setupPort(void)
 {
 	// clear control port
-	LCD_CTRL_PORT &=
-	~(1 << LCD_CTRL_RS) &
-	~(1 << LCD_CTRL_RW) &
-	~(1 << LCD_CTRL_E);
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RS);
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RW);
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E);
 	
 	// set control port as output
-	LCD_CTRL_DDR |=
-	(1 << LCD_CTRL_RS) |
-	(1 << LCD_CTRL_RW) |
-	(1 << LCD_CTRL_E);
+	sbi(LCD_CTRL_DDR, LCD_CTRL_RS);
+	sbi(LCD_CTRL_DDR, LCD_CTRL_RW);
+	sbi(LCD_CTRL_DDR, LCD_CTRL_E);
 	
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
@@ -40,21 +38,21 @@ void lcd_setupPort(void)
 // wait until LCD is not busy
 void lcd_busyWait(void)
 {
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_RS); // control
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_RW); // read
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RS); // control
+	sbi(LCD_CTRL_PORT, LCD_CTRL_RW); // read
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+	sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 	_delay_us(1);
 	while(LCD_DATA_PIN & (1 << LCD_BUSY)) // check busy flag
 	{
-		LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+		cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 		_delay_us(1);
-		LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+		sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 		_delay_us(1);
 	}
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 }
 
 // send an instruction
@@ -62,14 +60,14 @@ void lcd_writeControl(unsigned char data)
 {
 	lcd_busyWait();
 	
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_RS); // control
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_RW); // write
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RS); // control
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RW); // write
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+	sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 	LCD_DATA_DDR  = 0xFF; // set data port as output
 	LCD_DATA_POUT = data; // output data
 	_delay_us(1);
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 	
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
@@ -80,14 +78,14 @@ void lcd_writeData(unsigned char data)
 {
 	lcd_busyWait();
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_RS); // data
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_RW); // write
+	sbi(LCD_CTRL_PORT, LCD_CTRL_RS); // data
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RW); // write
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+	sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 	LCD_DATA_DDR  = 0xFF; // set data port as output
 	LCD_DATA_POUT = data; // output data
 	_delay_us(1);
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 	
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
@@ -103,18 +101,18 @@ unsigned char lcd_readControl(void)
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
 	
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_RS); // control
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_RW); // read
+	cbi(LCD_CTRL_PORT, LCD_CTRL_RS); // control
+	sbi(LCD_CTRL_PORT, LCD_CTRL_RW); // read
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+	sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 	_delay_us(1);
 	data = LCD_DATA_PIN; // input data
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 	
 	return data;
 }
 
-// read data into DDRAM or CGRAM
+// read data from DDRAM or CGRAM
 unsigned char lcd_readData(void)
 {
 	unsigned char data;
@@ -124,13 +122,13 @@ unsigned char lcd_readData(void)
 	LCD_DATA_DDR  = 0x00; // set data port as input
 	LCD_DATA_POUT = 0xFF; // internal pull-up
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_RS); // data
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_RW); // read
+	sbi(LCD_CTRL_PORT, LCD_CTRL_RS); // data
+	sbi(LCD_CTRL_PORT, LCD_CTRL_RW); // read
 	
-	LCD_CTRL_PORT |=  (1 << LCD_CTRL_E); // enable
+	sbi(LCD_CTRL_PORT, LCD_CTRL_E); // enable
 	_delay_us(1);
 	data = LCD_DATA_PIN; // input data
-	LCD_CTRL_PORT &= ~(1 << LCD_CTRL_E); // disable
+	cbi(LCD_CTRL_PORT, LCD_CTRL_E); // disable
 	
 	return data;
 }
@@ -146,7 +144,7 @@ void lcd_init(void)
 	lcd_writeControl(LCD_CLEAR);
 	lcd_writeControl(LCD_HOME);
 	lcd_writeControl(LCD_ENTRY | LCD_ENTRY_INC);
-	lcd_writeControl(LCD_ON | LCD_ON_DISPLAY | LCD_ON_CURSOR);
+	lcd_writeControl(LCD_ON | LCD_ON_DISPLAY | LCD_ON_CURSOR | LCD_ON_BLINK);
 	lcd_writeControl(LCD_DDRAM | 0x00);
 }
 
@@ -198,3 +196,17 @@ void lcd_printf(const char* fmt, ...)
 	lcd_puts(str);
 }
 
+void lcd_loadCustomFont(unsigned char code, const char* pattern)
+{
+	unsigned char currCursorPos = lcd_readControl() & 0x7F; // store current cursor position as DDRAM address
+	
+	// TODO: load custom font
+	code <<= 3;
+	for(int i=0; i<8; i++)
+	{
+		lcd_writeControl(LCD_CGRAM | (code + i));
+		lcd_writeData(pattern[i]);
+	}
+	
+	lcd_writeControl(LCD_DDRAM | currCursorPos);
+}

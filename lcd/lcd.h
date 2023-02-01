@@ -18,7 +18,7 @@
 #define _LCD_H_
 
 #ifndef F_CPU
-#error "F_CPU is not defined."
+#error "F_CPU not defined for lcd.h"
 #endif
 
 #include <avr/io.h>
@@ -27,8 +27,14 @@
 
 /* ================ config ================ */
 
-/* interface */
-// #define LCD_INTERFACE_8BIT
+/* hardware info (To change a configuration, uncomment the line.) */
+ #define LCD_CONFIG_8BIT
+// #define LCD_CONFIG_1LINE
+// #define LCD_CONFIG_5X10
+
+/* initial cursor option (To change a configuration, uncomment the line.) */
+// #define LCD_CONFIG_HIDE_CURSOR
+// #define LCD_CONFIG_NO_BLINK
 
 /* port */
 // control
@@ -56,29 +62,39 @@
 /* ================ end of config ================ */
 
 /* instruction */
-#define LCD_CLEAR    0b1        // clear display
-#define LCD_HOME     0b10       // return home
-#define LCD_ENTRY    0b100      // entry mode set
-#define LCD_ON       0b1000     // display on/off control
-#define LCD_MOVE     0b10000    // cursor or display shift
-#define LCD_FUNCTION 0b100000   // function set
-#define LCD_CGRAM    0b1000000  // set CGRAM address
-#define LCD_DDRAM    0b10000000 // set DDRAM address
+#define LCD_CLEAR    (1 << 0) // clear display
+#define LCD_HOME     (1 << 1) // return home
+#define LCD_ENTRY    (1 << 2) // entry mode set
+#define LCD_ON       (1 << 3) // display on/off control
+#define LCD_MOVE     (1 << 4) // cursor or display shift
+#define LCD_FUNCTION (1 << 5) // function set
+#define LCD_CGRAM    (1 << 6) // set CGRAM address
+#define LCD_DDRAM    (1 << 7) // set DDRAM address
 
 /* code */
-#define LCD_ENTRY_INC      0b10    // 1: increment (0: decrement)
-#define LCD_ENTRY_SHIFT    0b1     // 1: accompanies display shift
-#define LCD_ON_DISPLAY     0b100   // 1: entire display on (0: off)
-#define LCD_ON_CURSOR      0b10    // 1: cursor on (0: off)
-#define LCD_ON_BLINK       0b1     // 1: blink cursor position character (0: don't)
-#define LCD_MOVE_DISPLAY   0b1000  // 1: display shift (0: cursor move)
-#define LCD_MOVE_RIGHT     0b100   // 1: shift to the right (0: left)
-#define LCD_FUNCTION_8BIT  0b10000 // 1: 8 bits (0: 4 bits)
-#define LCD_FUNCTION_2LINE 0b1000  // 1: 2 lines (0: 1 line)
-#define LCD_FUNCTION_5X10  0b100   // 1: 5x10 dots (0: 5x8 dots)
+#define LCD_ENTRY_INC      (1 << 1) // 1: increment (0: decrement)
+#define LCD_ENTRY_SHIFT    (1 << 0) // 1: accompanies display shift
+#define LCD_ON_DISPLAY     (1 << 2) // 1: entire display on (0: off)
+#define LCD_ON_CURSOR      (1 << 1) // 1: cursor on (0: off)
+#define LCD_ON_BLINK       (1 << 0) // 1: blink cursor position character (0: don't)
+#define LCD_MOVE_DISPLAY   (1 << 3) // 1: display shift (0: cursor move)
+#define LCD_MOVE_RIGHT     (1 << 2) // 1: shift to the right (0: left)
+#define LCD_FUNCTION_8BIT  (1 << 4) // 1: 8 bits (0: 4 bits)
+#define LCD_FUNCTION_2LINE (1 << 3) // 1: 2 lines (0: 1 line)
+#define LCD_FUNCTION_5X10  (1 << 2) // 1: 5x10 dots (0: 5x8 dots)
 
 /* busy flag */
 #define LCD_BUSY 7
+// #define LCD_BUSY (1 << 7)
+
+/* deprecated macro */
+#ifndef sbi
+#define sbi(port, bit) (port) |= (1 << (bit))
+#endif
+
+#ifndef cbi
+#define cbi(port, bit) (port) &= ~(1 << (bit))
+#endif
 
 /* low-level function */
 void lcd_setupPort(void); // setup port
@@ -98,5 +114,6 @@ void lcd_putchar(char c);
 void lcd_puts(const char* str);
 void lcd_printf(const char* fmt, ...);
 
-#endif // _LCD_H_
+void lcd_loadCustomFont(unsigned char code, const char* pattern);
 
+#endif // _LCD_H_
