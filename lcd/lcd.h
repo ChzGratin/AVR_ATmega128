@@ -7,7 +7,7 @@
  * Description:
  * Simple library for character LCD.
  * Edition of Procyon AVRlib by Pascal Stang.
- * Use 8-bit interface.
+ * Support both 8-bit and 4-bit interface.
  * Implement putchar(), puts(), and printf().
  *
  * License:
@@ -27,14 +27,14 @@
 
 /* ================ config ================ */
 
-/* hardware info (To change a configuration, uncomment the line.) */
- #define LCD_CONFIG_8BIT
-// #define LCD_CONFIG_1LINE
+/* hardware info (To change a configuration, comment or uncomment the line.) */
+// #define LCD_CONFIG_8BIT
+ #define LCD_CONFIG_2LINE
 // #define LCD_CONFIG_5X10
 
-/* initial cursor option (To change a configuration, uncomment the line.) */
-// #define LCD_CONFIG_HIDE_CURSOR
-// #define LCD_CONFIG_NO_BLINK
+/* initial cursor option (To change a configuration, comment or uncomment the line.) */
+ #define LCD_CONFIG_CURSOR_ON
+ #define LCD_CONFIG_BLINK
 
 /* port */
 // control
@@ -44,7 +44,7 @@
 #define LCD_CTRL_RW   1
 #define LCD_CTRL_E    2
 
-// data
+// data (In 4-bit interface, use high 4 bits.)
 #define LCD_DATA_POUT PORTB
 #define LCD_DATA_PIN  PINB
 #define LCD_DATA_DDR  DDRB
@@ -101,10 +101,13 @@ void lcd_setupPort(void); // setup port
 
 void lcd_busyWait(void); // wait until LCD is not busy
 
+void          lcd_writeByte(unsigned char data); // write 1 byte into register without busy waiting
+unsigned char lcd_readByte (void);               // read 1 byte from register without busy waiting
+
 void lcd_writeControl(unsigned char data); // send an instruction
 void lcd_writeData   (unsigned char data); // write data into DDRAM or CGRAM
 
-unsigned char lcd_readControl(void); // read busy flag (BF) and address counter
+unsigned char lcd_readControl(void); // read busy flag (BF) and address counter (AC)
 unsigned char lcd_readData   (void); // read data into DDRAM or CGRAM
 
 /* high-level function */
