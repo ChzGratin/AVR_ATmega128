@@ -26,22 +26,6 @@
 // PC0 = SCL
 // PC1 = SDA
 
-/* ================ config ================ */
-
-/* MCU info (To change a configuration, comment or uncomment the line.) */
-// #define LCD_I2C_CONFIG_ATMEGA128_64
-#define LCD_I2C_CONFIG_SLAVE_ADDRESS 0x7E
-
-/* hardware info (To change a configuration, comment or uncomment the line.) */
-#define LCD_CONFIG_2LINE
-// #define LCD_CONFIG_5X10
-
-/* initial cursor option (To change a configuration, comment or uncomment the line.) */
-// #define LCD_CONFIG_CURSOR_ON
-// #define LCD_CONFIG_BLINK
-
-/* ================ end of config ================ */
-
 /* maximal LCD geometry */
 #define LCD_MAX_ROW 4
 #define LCD_MAX_COL 20
